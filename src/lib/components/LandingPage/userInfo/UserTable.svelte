@@ -2,7 +2,6 @@
   export let selected = "";
   let isOpen = false;
   let activeButton = 1;
-  let percentage = 75;
 
   const handleActive = (/** @type {number} */ buttonNumber) => {
     activeButton = buttonNumber;
@@ -51,6 +50,11 @@
       status: "active",
     },
   ];
+
+  // Filter the data based on the selected status
+  $: filteredData = selected
+    ? data.filter((item) => item.status === selected)
+    : data;
 </script>
 
 <div>
@@ -252,7 +256,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each data as { landingZone, location, state, percentage, status }}
+        {#each filteredData as { landingZone, location, state, percentage, status }}
           <tr class="bg-white border border-gray-200">
             <th
               scope="row"
@@ -289,7 +293,7 @@
                   <div class="progress-bar">
                     <div
                       class="progress-fill"
-                      style="width: {percentage}%;"
+                      style="width: {percentage}%"
                     ></div>
                   </div>
                 </div>
@@ -302,7 +306,6 @@
             >
               <svg
                 class="w-6 h-6 !text-[#1C64F2]"
-                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
@@ -342,31 +345,3 @@
     </table>
   </div>
 </div>
-
-<style>
-  .progress-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .progress-bar {
-    width: 100%;
-    height: 10px;
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    position: relative;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background-color: #4caf50;
-    border-radius: 5px;
-  }
-
-  .percentage-text {
-    font-size: 14px;
-    font-weight: bold;
-    color: #666;
-  }
-</style>
