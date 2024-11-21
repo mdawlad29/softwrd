@@ -1,5 +1,6 @@
 <script>
-  import UserTable from "./userInfo/UserTable.svelte";
+  import Chart from "./Chart/Chart.svelte";
+  import UserTable from "./UserInfo/UserTable.svelte";
 </script>
 
 <div class="container mx-auto grid grid-cols-6 gap-[40px]">
@@ -9,5 +10,7 @@
   </div>
 
   <!-- Right Section -->
-  <div class="border border-[blue] p-2 col-span-2"></div>
+  <div class="border border-[blue] p-2 col-span-2">
+    <Chart />
+  </div>
 </div>
