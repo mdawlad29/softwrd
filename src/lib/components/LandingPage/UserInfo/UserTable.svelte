@@ -1,6 +1,10 @@
 <script>
   // @ts-nocheck
 
+  import ViewDetails from "$lib/components/modal/ViewDetails.svelte";
+  import { onMount } from "svelte";
+  import { launchesStore, fetchLaunches } from "../../../../store/LaunchStore";
+
   export let selected = "";
   let isOpen = false;
   let activeButton = 1;
@@ -8,11 +12,14 @@
    * @type {any[]}
    */
   let launches = [];
+  let launchData = {};
   let loading = true;
   let error = null;
+  let selectedLaunch = null;
+  let showModal = false;
 
-  import { onMount } from "svelte";
-  import { launchesStore, fetchLaunches } from "../../../../store/LaunchStore";
+  $: console.log(showModal);
+
   onMount(() => {
     fetchLaunches();
   });
@@ -27,7 +34,11 @@
     error: $launchesStore.error,
   };
 
-  // Handle status filtering
+  onMount(async () => {
+    const data = await fetchLaunches();
+    launchData = data;
+  });
+
   const handleSelect = (/** @type {string} */ value) => {
     selected = value;
     isOpen = false;
@@ -36,6 +47,15 @@
 
   const handleActive = (/** @type {number} */ buttonNumber) => {
     activeButton = buttonNumber;
+  };
+
+  const openModal = (launch) => {
+    selectedLaunch = launch;
+    showModal = true;
+  };
+
+  const closeModal = () => {
+    showModal = false;
   };
 </script>
 
@@ -260,6 +280,7 @@
               class="px-[21px] py-4 font-medium text-[12px] leading-[18px] text-gray-900 whitespace-nowrap"
             >
               <button
+                on:click={() => openModal(launch)}
                 class="bg-gray-200 rounded-lg px-[10px] py-[2px] capitalize"
                 >view details</button
               >
@@ -327,3 +348,8 @@
     </table>
   </div>
 </div>
+
+<!-- Modal for showing launch details -->
+{#if showModal && selectedLaunch}
+  <ViewDetails {selectedLaunch} on:close={closeModal} />
+{/if}
