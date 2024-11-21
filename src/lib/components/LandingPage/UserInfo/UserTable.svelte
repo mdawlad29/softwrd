@@ -1,60 +1,42 @@
 <script>
+  // @ts-nocheck
+
   export let selected = "";
   let isOpen = false;
   let activeButton = 1;
+  /**
+   * @type {any[]}
+   */
+  let launches = [];
+  let loading = true;
+  let error = null;
 
-  const handleActive = (/** @type {number} */ buttonNumber) => {
-    activeButton = buttonNumber;
+  import { onMount } from "svelte";
+  import { launchesStore, fetchLaunches } from "../../../../store/LaunchStore";
+  onMount(() => {
+    fetchLaunches();
+  });
+
+  // Reactive filtered data
+  $: filteredData = {
+    launches: $launchesStore.launches.filter((item) =>
+      // @ts-ignore
+      selected ? item.status === selected : true
+    ),
+    loading: $launchesStore.loading,
+    error: $launchesStore.error,
   };
 
+  // Handle status filtering
   const handleSelect = (/** @type {string} */ value) => {
     selected = value;
     isOpen = false;
     dispatchEvent(new CustomEvent("change", { detail: value }));
   };
 
-  let data = [
-    {
-      landingZone: "landing zone 1",
-      location: "cape canaveral",
-      state: "florida",
-      percentage: 75,
-      status: "active",
-    },
-    {
-      landingZone: "landing zone 2",
-      location: "houston",
-      state: "texas",
-      percentage: "N/A",
-      status: "retired",
-    },
-    {
-      landingZone: "landing zone 3",
-      location: "los angeles",
-      state: "california",
-      percentage: 50,
-      status: "under construction",
-    },
-    {
-      landingZone: "landing zone 4",
-      location: "new york",
-      state: "new york",
-      percentage: 75,
-      status: "active",
-    },
-    {
-      landingZone: "landing zone 5",
-      location: "chicago",
-      state: "illinois",
-      percentage: 75,
-      status: "active",
-    },
-  ];
-
-  // Filter the data based on the selected status
-  $: filteredData = selected
-    ? data.filter((item) => item.status === selected)
-    : data;
+  const handleActive = (/** @type {number} */ buttonNumber) => {
+    activeButton = buttonNumber;
+  };
 </script>
 
 <div>
@@ -203,7 +185,7 @@
   </div>
 
   <!-- User Table -->
-  <div class="relative overflow-x-auto rounded-lg shadow-sm">
+  <div class="relative overflow-x-auto rounded-lg shadow-sm h-[70vh]">
     <table
       class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
     >
@@ -256,22 +238,22 @@
         </tr>
       </thead>
       <tbody>
-        {#each filteredData as { landingZone, location, state, percentage, status }}
+        {#each filteredData.launches as launch}
           <tr class="bg-white border border-gray-200">
             <th
               scope="row"
               class="px-[21px] py-4 capitalize font-bold text-sm leading-[21px] text-gray-900 whitespace-nowrap"
-              >{landingZone}</th
+              >{launch.landingZone}</th
             >
             <th
               scope="row"
               class="px-[21px] py-4 capitalize font-bold text-sm leading-[21px] text-gray-900 whitespace-nowrap"
-              >{location}</th
+              >{launch.location}</th
             >
             <th
               scope="row"
               class="px-[21px] py-4 capitalize font-bold text-sm leading-[21px] text-gray-900 whitespace-nowrap"
-              >{state}</th
+              >{launch.state}</th
             >
             <th
               scope="row"
@@ -286,18 +268,18 @@
               scope="row"
               class="px-[21px] py-4 capitalize font-bold text-sm leading-[21px] text-gray-900 whitespace-nowrap"
             >
-              {#if percentage === "N/A"}
+              {#if launch.percentage === "N/A"}
                 <p class="percentage-text">N/A</p>
               {:else}
                 <div class="progress-container">
                   <div class="progress-bar">
                     <div
                       class="progress-fill"
-                      style="width: {percentage}%"
+                      style="width: {launch.percentage}%"
                     ></div>
                   </div>
                 </div>
-                <p class="percentage-text">{percentage}%</p>
+                <p class="percentage-text">{launch.percentage}%</p>
               {/if}
             </th>
             <th
@@ -327,16 +309,16 @@
             >
               <button
                 class={`${
-                  status === "retired"
+                  launch.status === "retired"
                     ? "bg-[#FDE8E8] text-red-800"
-                    : status === "under construction"
+                    : launch.status === "under construction"
                       ? "text-[#1E429F] bg-[#E1EFFE]"
-                      : status === "active"
+                      : launch.status === "active"
                         ? "text-green-800 bg-[#DEF7EC]"
                         : "text-gray-500 bg-[#E0E0E0]"
                 } rounded-lg px-[10px] py-[2px] capitalize`}
               >
-                {status}
+                {launch.status}
               </button>
             </th>
           </tr>
